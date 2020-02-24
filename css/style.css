@@ -1,0 +1,12 @@
+.content-body {
+    width: 100%;
+    margin: 1em auto;
+    text-align: center;
+}
+
+#formHiddenData {
+    display:none;
+}
+.compactColumn {
+    width: 75px;
+}

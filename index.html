@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <title>Budgeting</title>
+</head>
+<body>
+<div class="container">
+    <div class="content-body">
+        <div class="row">
+            <div class="col-md-12">
+                Project till
+                <input id="projectTill" type="date"><br><br>
+            </div>
+            <input type="hidden" id="transactionData" value="">
+        </div>
+        <table class="table table-borded table-striped" id="tableSettings">
+            <thead class="table-dark">
+            <tr>
+                <td class="compactColumn">#</td>
+                <td>Transaction</td>
+                <td>Value</td>
+                <td>Frequency</td>
+                <td class="compactColumn"></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr></tr>
+            </tbody>
+        </table>
+        <button type="button" id="btnAddTransaction" class="btn btn-link" data-toggle="modal" data-target="#myModal">
+            Add Transaction
+        </button>
+        <div class="modal fade" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Transaction</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <input type="hidden" id="formId" value="">
+                            <div class="form-group">
+                                <label for="formName">Transaction Name</label>
+                                <input type="text" class="form-control" id="formName" placeholder="Label">
+                            </div>
+                            <div class="form-group">
+                                <label for="formValue">Value</label>
+                                <input type="text" class="form-control" id="formValue">
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <label for="formFrequency">Frequency</label>
+                                            <select class="form-control" id="formFrequency"
+                                                    onchange="formFrequencyTrigger(this)">
+                                                <option>One Off</option>
+                                                <option>Daily</option>
+                                                <option>Weekly</option>
+                                                <option>Fortnightly</option>
+                                                <option>Monthly</option>
+                                                <option>Yearly</option>
+                                                <option>Every X Days</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div id="formCustomDaysGroup" class="form-group">
+                                            <label for="formCustomDays">X Days</label>
+                                            <input type="text" class="form-control" id="formCustomDays">
+                                        </div>
+                                        <div id="formWeekGroup" class="form-group">
+                                            <label for="formWeekday">Weekday</label>
+                                            <select class="form-control" id="formWeekday">
+                                                <option value="Mon">Monday</option>
+                                                <option value="Tue">Tuesday</option>
+                                                <option value="Wed">Wednesday</option>
+                                                <option value="Thu">Thursday</option>
+                                                <option value="Fri">Friday</option>
+                                                <option value="Sat">Saturday</option>
+                                                <option value="Sun">Sunday</option>
+                                            </select>
+                                        </div>
+                                        <div id="formCalendarGroup" class="form-group">
+                                            <label for="formDate">Start Date</label><br>
+                                            <input id="formDate" type="date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-dismiss="modal" id="addTransactionRowButton">
+                            Add
+                        </button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"
+                                id="cancelTransactionRowButton">Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tableResult" class="table table-borded table-striped">
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
