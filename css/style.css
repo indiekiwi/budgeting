@@ -5,8 +5,95 @@
 }
 
 #formHiddenData {
-    display:none;
+    display: none;
 }
+
 .compactColumn {
     width: 75px;
+}
+
+.weekend {
+    color: navy;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.weekendBold {
+    font-weight: bolder;
+}
+
+.monthStart {
+    border-top: 3px double rgba(0, 0, 0, 0.5) !important;
+    font-weight: bold;
+}
+
+.slimCol {
+    width: 1px;
+    padding: 7px 2px !important;
+    text-align: right;
+}
+
+.indexCol {
+    opacity: 0.2;
+}
+
+.balanceCol {
+    width: 50px;
+}
+
+.secondaryDates {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+#tableResult th {
+    color: #fff;
+    background-color: #343a40;
+}
+
+.valueAdd, .valueAdd:focus {
+    background-color: rgba(0, 255, 0, 0.2) !important;
+    color: green !important;
+}
+
+pre {
+    border-style: outset;
+    font-size: 0.75em;
+}
+
+.valueSubtract, .valueSubtract:focus {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+    color: red !important;
+}
+
+.positive {
+    color: green;
+}
+
+.negative {
+    color: red;
+}
+
+#valueSignButton {
+    width: 100%;
+}
+
+.lastRow {
+    font-weight: bolder;
+    background: #2C3C54;
+    color: #FFF;
+    opacity: 1;
+}
+
+.nonEssential {
+    display: none;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+    opacity: 0.75;
+}
+
+#about {
+    background: rgba(0, 0, 0, 0.1);
 }

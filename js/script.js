@@ -1,8 +1,9 @@
-var idx = 0;
-var data = {};
+let idx = 0;
+let data = {};
+let showEmptyRows = true;
 
 const
-    WEEKDAYS                = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    WEEKDAYS                = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     MONTHS                  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     FREQUENCY_ONE_OFF       = 'One Off',
     FREQUENCY_DAILY         = 'Daily',
@@ -15,7 +16,7 @@ const
 $(document).ready(function () {
     resetForm();
 
-    var defaultDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+    let defaultDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
     document.getElementById("projectTill").valueAsDate = defaultDate;
 });
 $('#projectTill').change(function () {
@@ -24,58 +25,116 @@ $('#projectTill').change(function () {
 $('#cancelTransactionRowButton').on('click', function (event) {
     resetForm();
 });
+$('#valueSignButton').on('click', function (event) {
+    if (isValuePositive()) {
+        setValueRed();
+    } else {
+        setValueGreen();
+    }
+});
+function isValuePositive() {
+    return $('#valueSignButton').hasClass('btn-success');
+}
+function setValueRed() {
+    $('#valueSignButton').text("SUBTRACT")
+        .removeClass('btn-success')
+        .addClass('btn-danger');
+    $('#formValue').removeClass('valueAdd')
+        .addClass('valueSubtract');
+}
+function setValueGreen() {
+    $('#valueSignButton').text("ADD")
+        .removeClass('btn-danger')
+        .addClass('btn-success');
+    $('#formValue').removeClass('valueSubtract')
+        .addClass('valueAdd');
+}
+$( "#exportModal" ).on('shown.bs.modal', function(){
+    jsonExport();
+});
+$('#importJsonBtn').on('click', function (event) {
+    jsonImport();
+});
 $('#addTransactionRowButton').on('click', function (event) {
     event.preventDefault();
+    addRow();
+    updateTable();
+});
+$('#btnToggleShowEmpty').on('click', function (event) {
+    event.preventDefault();
+    showEmptyRows = !showEmptyRows;
+    updateTable();
+});
 
-    var modifyId = document.getElementById("formId").value;
-    var table = document.getElementById("tableSettings");
-    var updateIndex = 0;
+function addRow() {
+    let modifyId = document.getElementById("formId").value;
+    let table = document.getElementById("tableSettings");
+    let updateIndex = 0;
+    let c0 = null;
+    let c1 = null;
+    let c2 = null;
+    let c3 = null;
+    let c4 = null;
+
     if (modifyId > 0) {
         // Modify
         updateIndex = modifyId;
-        var table = document.getElementById("tableSettings");
-        for (var r = 0, row; row = table.rows[r]; r++) {
+        for (let r = 0, row; row = table.rows[r]; r++) {
             if (row.cells.item(4) !== null && row.cells.item(0).innerText == modifyId) {
-                var c0 = row.cells.item(0);
-                var c1 = row.cells.item(1);
-                var c2 = row.cells.item(2);
-                var c3 = row.cells.item(3);
-                var c4 = row.cells.item(4);
+                c0 = row.cells.item(0);
+                c1 = row.cells.item(1);
+                c2 = row.cells.item(2);
+                c3 = row.cells.item(3);
+                c4 = row.cells.item(4);
             }
         }
     } else {
         // Insert
-        var row = table.insertRow(++idx);
-        var c0 = row.insertCell(0)
-        var c1 = row.insertCell(1);
-        var c2 = row.insertCell(2);
-        var c3 = row.insertCell(3);
-        var c4 = row.insertCell(4);
+        let row = table.insertRow(++idx);
+
+        table.insertRow()
+
+        c0 = row.insertCell(0)
+        c1 = row.insertCell(1);
+        c2 = row.insertCell(2);
+        c3 = row.insertCell(3);
+        c4 = row.insertCell(4);
         updateIndex = idx;
     }
 
-    var label = document.getElementById("formName").value;
-    var value = document.getElementById("formValue").value !== ''
+    let label = document.getElementById("formName").value;
+    let value = document.getElementById("formValue").value !== ''
         ? document.getElementById("formValue").value
         : 0;
-    var startDate = document.getElementById("formDate").value;
-    var frequency = document.getElementById("formFrequency").value;
-    var weekday = document.getElementById("formWeekday").value;
-    var customDays = frequency === FREQUENCY_FORTNIGHTLY
+    if (!isValuePositive()) {
+        value *= -1;
+    }
+    let startDate = document.getElementById("formDate").value;
+    let frequency = document.getElementById("formFrequency").value;
+    let weekday = document.getElementById("formWeekday").value;
+    let customDays = frequency === FREQUENCY_FORTNIGHTLY
         ? 14
         : document.getElementById("formCustomDays").value;
-    var frequencyDescription = generateFrequency(frequency, new Date(startDate), weekday, customDays);
+    let frequencyDescription = generateFrequency(frequency, new Date(startDate), weekday, customDays);
 
     c0.innerHTML = updateIndex;
     c1.innerHTML = label;
-    c2.innerHTML = value;
+    let color = 'black';
+    let prefix = '';
+    if (value < 0) {
+        color = 'red';
+    } else if (value > 0) {
+        color = 'green';
+        prefix = '+';
+    }
+    c2.innerHTML = '<span style="color:' + color + '">' + prefix + value + '</span>';
     c3.innerHTML = frequencyDescription;
     c4.innerHTML = '<button type="button" class="btn btn-primary" onclick="modifyRow(' + updateIndex + ')"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>'
-        + ' <button type="button" class="btn btn-danger" onclick="deleteRow(' + updateIndex + ')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+        + ' <button type="button" class="btn btn-danger" onclick="deleteRow(' + updateIndex + ', true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
 
     data[updateIndex] = {
         'label': label,
-        'value': value,
+        'value': Number(value),
         'startDate': startDate,
         'frequency': frequency,
         'weekday': weekday,
@@ -83,19 +142,24 @@ $('#addTransactionRowButton').on('click', function (event) {
     };
     resetForm();
     document.getElementById("transactionData").value = JSON.stringify(data);
-    updateTable();
-    // $(this).submit();
-});
+}
 
 function modifyRow(i) {
-    var table = document.getElementById("tableSettings");
-    for (var r = 0, row; row = table.rows[r]; r++) {
+    let table = document.getElementById("tableSettings");
+    for (let r = 0, row; row = table.rows[r]; r++) {
         if (row.cells.item(0) !== null && row.cells.item(0).innerText == i) {
-
-            var id = row.cells.item(0).innerText;
+            let id = row.cells.item(0).innerText;
             document.getElementById("formId").value = id;
             document.getElementById("formName").value = data[id].label;
-            document.getElementById("formValue").value = data[id].value;
+            let formValue = data[id].value;
+            if (formValue < 0) {
+                setValueRed();
+                formValue *= -1;
+            } else {
+                setValueGreen();
+            }
+            document.getElementById("formValue").value = formValue;
+
             document.getElementById("formDate").value = data[id].startDate;
             document.getElementById("formFrequency").value = data[id].frequency;
             document.getElementById("formWeekday").value = data[id].weekday;
@@ -109,60 +173,123 @@ function modifyRow(i) {
     }
 }
 
-function deleteRow(i) {
+function deleteRow(i, update) {
     delete data[i];
-    var table = document.getElementById("tableSettings");
-    for (var r = 0, row; row = table.rows[r]; r++) {
+    let table = document.getElementById("tableSettings");
+    for (let r = 0, row; row = table.rows[r]; r++) {
         if (row.cells.item(0) !== null && row.cells.item(0).innerText == i) {
             row.style.display = 'none';
             break;
         }
     }
-    updateTable();
+    if (update) {
+        document.getElementById("transactionData").value = JSON.stringify(data);
+        updateTable();
+    }
+}
+
+function getStartDate(transactionData)
+{
+    let startDate = null;
+    for (let [i, transaction] of Object.entries(transactionData)) {
+        let checkDate = new Date(transaction.startDate);
+        if (startDate === null || checkDate < startDate) {
+            startDate = checkDate;
+        }
+    }
+    if (startDate === null) {
+        startDate = new Date();
+    }
+
+    return startDate;
 }
 
 function updateTable() {
-    var balance = 0;
-    var settingsTable = document.getElementById("tableSettings");
-    var projectTillDate = new Date(document.getElementById("projectTill").value);
-    var resultsTable = document.getElementById("tableResult");
-
+    let balance = 0;
+    let projectTillDate = new Date(document.getElementById("projectTill").value);
+    let resultsTable = document.getElementById("tableResult");
     resultsTable.innerHTML = '';
     var currentRow = resultsTable.insertRow();
-    var transactionCount = settingsTable.rows.length;
-    var today = new Date();
-    var currentDate = new Date();
-
-    var heading = '<th>Date</th>';
-    var transactionData = JSON.parse(document.getElementById("transactionData").value);
+    let heading = '<th></th><th></th>';
+    heading += '<th colspan="3">Date</th>';
+    let transactionData = JSON.parse(document.getElementById("transactionData").value);
+    let today = new Date();
+    let currentDate = getStartDate(transactionData);
+    today.setHours(0, 0, 0, 0);
+    currentDate.setHours(23, 59, 59, 0);
 
     for (let [i, transaction] of Object.entries(transactionData)) {
+        let headerColor = transaction.value > 0 ? ' valueAdd' : 'valueSubtract';
         if (transaction['label']) {
-            heading += '<th>' + transaction['label'] + '</th>';
+            heading += '<th class="' + headerColor + '">' + transaction['label'] + '</th>';
         } else {
-            heading += '<th>Transaction #' + i + '</th>';
+            heading += '<th class="' + headerColor + '">Transaction #' + i + '</th>';
         }
     }
 
     heading += '<th>BALANCE</th>';
     currentRow.innerHTML = heading;
 
-    var xDayIndex = {};
+    let xDayIndex = {};
+    let counter = null;
 
     while (currentDate <= projectTillDate) {
-        // First column is date
-        var currentRow = resultsTable.insertRow();
-        var cellDate = currentRow.insertCell();
-        cellDate.innerHTML = getFullDate(currentDate);
-        for (let [i, transaction] of Object.entries(transactionData)) {
-            var startDate = new Date(transaction['startDate']);
-            var cellNext = currentRow.insertCell();
+        if (counter === null && currentDate >= today) {
+            counter = 0;
+        }
 
+        let lastRow = currentDate.toDateString() == projectTillDate.toDateString();
+        var currentRow = resultsTable.insertRow();
+        //resultsTable.insertRow();
+
+        // Set classes
+        let rowStyle = (currentDate.getDay() == 6 || currentDate.getDay() == 0) ? 'weekend' : ''
+        let monthYearStyle = '';
+        let showIfFinal = ''
+        if (lastRow) {
+            showIfFinal = ' lastRow';
+        }
+        if (currentDate.getDate() == 1) {
+            rowStyle += ' monthStart';
+        } else {
+            monthYearStyle = ' secondaryDates';
+        }
+
+        let rowWeekendStyle = rowStyle + " weekendBold";
+
+        // Index
+        if (counter !== null) {
+            counter++;
+        }
+        let cellIndex = currentRow.insertCell();
+        cellIndex.innerHTML = counter;
+        cellIndex.className = rowStyle + " slimCol indexCol";
+
+        // Dates
+        let cellDateA = currentRow.insertCell();
+        cellDateA.innerHTML = WEEKDAYS[currentDate.getDay()];
+        cellDateA.className = rowWeekendStyle + " slimCol";
+        let cellDateB = currentRow.insertCell();
+        cellDateB.innerHTML = currentDate.getDate() + getOrdinal(currentDate.getDate());
+        cellDateB.className = rowStyle + " slimCol";
+        let cellDateC = currentRow.insertCell();
+        cellDateC.innerHTML = MONTHS[currentDate.getMonth()];
+        cellDateC.className = rowStyle + " slimCol" + monthYearStyle;
+        let cellDateD = currentRow.insertCell();
+        cellDateD.innerHTML = currentDate.getFullYear();
+        cellDateD.className = rowStyle + " slimCol" + monthYearStyle;
+
+        let hasEntry = false;
+        for (let [i, transaction] of Object.entries(transactionData)) {
+            let startDate = new Date(transaction['startDate']);
+            let cellNext = currentRow.insertCell();
+            cellNext.className = rowStyle;
+            let isApply = null;
             if ((transaction['frequency'] == FREQUENCY_FORTNIGHTLY
                 || transaction['frequency'] == FREQUENCY_EVERY_X_DAYS)
                 && currentDate > startDate
             ) {
-                var isApply = false;
+                isApply = false;
                 if (!xDayIndex.hasOwnProperty(i)) {
                     xDayIndex[i] = Number(transaction['customDays']) - 1;
                 }
@@ -171,7 +298,7 @@ function updateTable() {
                     isApply = true;
                 }
             } else {
-                var isApply = checkTransactionAppliesToDate(
+                isApply = checkTransactionAppliesToDate(
                     currentDate,
                     today,
                     startDate,
@@ -183,14 +310,23 @@ function updateTable() {
             if (isApply) {
                 cellNext.innerHTML = parseFloat(transaction['value']).toFixed(2);
                 balance = Number(balance) + Number(transaction['value']);
+                hasEntry = true;
             } else {
                 cellNext.innerHTML = '-';
             }
         }
 
         // Last column is balance
-        var cellBalance = currentRow.insertCell();
+        let balColour = balance > 0 ? ' positive' : ' negative';
+        let cellBalance = currentRow.insertCell();
         cellBalance.innerHTML = parseFloat(balance).toFixed(2);
+        cellBalance.className = rowStyle + " balanceCol" + balColour + showIfFinal;
+
+        if ((!hasEntry && !lastRow && !showEmptyRows)
+            || currentDate < today
+        ) {
+            currentRow.remove();
+        }
 
         // Increment Date
         currentDate.setDate(currentDate.getDate() + 1);
@@ -207,8 +343,8 @@ function checkTransactionAppliesToDate(currentDate, today, startDate, frequency,
             return weekday === WEEKDAYS[currentDate.getDay()];
         case FREQUENCY_MONTHLY:
         case FREQUENCY_YEARLY:
-            var lastDateInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            var transactionDate = startDate.getDate();
+            let lastDateInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            let transactionDate = startDate.getDate();
             if (transactionDate > lastDateInMonth) {
                 transactionDate = lastDateInMonth;
             }
@@ -229,13 +365,14 @@ function resetForm() {
     document.getElementById("formFrequency").value = 'One Off';
     document.getElementById("formDate").valueAsDate = new Date();
     document.getElementById("addTransactionRowButton").innerHTML = 'Add';
+    setValueGreen();
     formFrequencyTrigger('');
 }
 
 function formFrequencyTrigger(frequency) {
-    var groupCustomDays = document.getElementById('formCustomDaysGroup');
-    var groupWeek = document.getElementById('formWeekGroup');
-    var groupCalendar = document.getElementById('formCalendarGroup');
+    let groupCustomDays = document.getElementById('formCustomDaysGroup');
+    let groupWeek = document.getElementById('formWeekGroup');
+    let groupCalendar = document.getElementById('formCalendarGroup');
 
     groupCustomDays.style.display = 'none';
     groupWeek.style.display = 'none';
@@ -263,7 +400,7 @@ function formFrequencyTrigger(frequency) {
 function generateFrequency(frequency, startDate, weekday, customDays) {
     switch (frequency) {
         case FREQUENCY_ONE_OFF:
-            return 'An one off on ' + getFullDate(startDate);
+            return 'One off on ' + getFullDate(startDate);
         case FREQUENCY_DAILY:
             return 'Everyday';
         case FREQUENCY_WEEKLY:
@@ -271,7 +408,7 @@ function generateFrequency(frequency, startDate, weekday, customDays) {
         case FREQUENCY_FORTNIGHTLY:
             return 'Fortnightly, starting on ' + getFullDate(startDate)
         case FREQUENCY_MONTHLY:
-            var extra = '';
+            let extra = '';
             if (startDate.getDate() > 28) {
                 extra = ' (or month end)';
             }
@@ -284,8 +421,8 @@ function generateFrequency(frequency, startDate, weekday, customDays) {
 }
 
 $('#formValue').on('input', function () {
-    var currentValue = $('#formValue').val();
-    if (!currentValue.match(/(^-?\d*\.?\d*$)/)) {
+    let currentValue = $('#formValue').val();
+    if (!currentValue.match(/(^\d*\.?\d*$)/)) {
         $('#formValue').val('');
     }
 });
@@ -311,4 +448,29 @@ function getOrdinal(date) {
         default:
             return 'th';
     }
+}
+
+function jsonExport() {
+    $('#exportJsonTextArea').val(JSON.stringify(data));
+}
+
+function jsonImport() {
+    document.getElementById("tableResult").innerHTML = '';
+    for (let i = 0; i < idx; i++) {
+        deleteRow(i + 1, false);
+    }
+    idx = 0;
+
+    data = JSON.parse($('#importJsonTextArea').val());
+    for (let [i, row] of Object.entries(data)) {
+        // document.getElementById("formId").value = i - 1;
+        document.getElementById("formName").value = row['label'];
+        document.getElementById("formValue").value = row['value'];
+        document.getElementById("formFrequency").value = row['frequency'];
+        document.getElementById("formDate").valueAsDate = new Date(row['startDate']);
+        document.getElementById("formWeekday").value = row['weekday'];
+        document.getElementById("formCustomDays").value = row['customDays'];
+        addRow();
+    }
+    updateTable();
 }

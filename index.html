@@ -24,21 +24,38 @@
         <table class="table table-borded table-striped" id="tableSettings">
             <thead class="table-dark">
             <tr>
-                <td class="compactColumn">#</td>
-                <td>Transaction</td>
-                <td>Value</td>
-                <td>Frequency</td>
-                <td class="compactColumn"></td>
+                <th class="compactColumn">#</th>
+                <th>Transaction</th>
+                <th>Value</th>
+                <th>Frequency</th>
+                <th class="compactColumn"></th>
             </tr>
             </thead>
             <tbody>
             <tr></tr>
             </tbody>
         </table>
-        <button type="button" id="btnAddTransaction" class="btn btn-link" data-toggle="modal" data-target="#myModal">
+
+        <button type="button" id="btnAddTransaction" class="btn btn-primary" data-toggle="modal"
+                data-target="#addTransactionModal">
             Add Transaction
         </button>
-        <div class="modal fade" id="myModal">
+        |
+        <button type="button" id="btnExportTransaction" class="btn btn-secondary" data-toggle="modal"
+                data-target="#exportModal">
+            Export Json
+        </button>
+        |
+        <button type="button" id="btnImportTransaction" class="btn btn-secondary" data-toggle="modal"
+                data-target="#importModal">
+            Import Json
+        </button>
+        |
+        <button type="button" id="btnToggleShowEmpty" class="btn btn-dark">
+            Toggle Placeholders
+        </button>
+
+        <div class="modal fade" id="addTransactionModal">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -52,9 +69,12 @@
                                 <label for="formName">Transaction Name</label>
                                 <input type="text" class="form-control" id="formName" placeholder="Label">
                             </div>
-                            <div class="form-group">
+                            <div class="container">
                                 <label for="formValue">Value</label>
-                                <input type="text" class="form-control" id="formValue">
+                                <div class="row">
+                                    <button type="button" id="valueSignButton" class="btn btn-success">ADD</button>
+                                    <input type="text" class="form-control valueAdd" id="formValue">
+                                </div>
                             </div>
 
                             <div class="container">
@@ -112,11 +132,79 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="exportModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="exportJsonTextArea">Export json</label>
+                                <textarea class="form-control" id="exportJsonTextArea" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="importModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="importJsonTextArea">Import json</label>
+                                <textarea class="form-control" id="importJsonTextArea" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-dismiss="modal" id="importJsonBtn">
+                            Import
+                        </button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
     <div class="row">
         <div class="col-md-12">
             <table id="tableResult" class="table table-borded table-striped">
             </table>
+        </div>
+    </div>
+
+    <br><br>
+    <div class="row">
+        <div id="about" class="col-md-12">
+            <h1>Budgeting tool</h1>
+            <p>
+                The primary function of this tool is to predict if consistent monetary transactions will be sustainable.
+                This project which can be found on <a href="https://github.com/indiekiwi/budgeting">github</a> and this
+                demo hosted on indie.kiwi does not send data back to any server as your data is calculated within your
+                device using javascript.
+            </p>
+            <h2>For example</h2>
+            <p>
+            <ul>
+                <li>I currently have a balance of $1000 (as at Jan 1st 2021)</li>
+                <li>I get Paid bi-weekly on Friday of $1000</li>
+                <li>My bills are $200 weekly (Monday)</li>
+                <li>I invest $50 every 10 days</li>
+            </ul>
+            Click on the <b>Import Json</b> to load the below json data into the tool. The balance column will be green
+            when the balance for the day is positive, and red when it's negative.
+            <br>
+            <br>
+            <pre>{"1":{"label":"Base Balance","value":"500","startDate":"2021-08-07","frequency":"One Off","weekday":"Mon","customDays":""},"2":{"label":"Income","value":"1000","startDate":"2021-08-13","frequency":"Fortnightly","weekday":"Mon","customDays":14},"3":{"label":"Bills","value":-600,"startDate":"2021-08-07","frequency":"Weekly","weekday":"Mon","customDays":""},"4":{"label":"Investment","value":-50,"startDate":"2021-08-10","frequency":"Every X Days","weekday":"Mon","customDays":"10"}}</pre>
+            </p>
         </div>
     </div>
 </div>
