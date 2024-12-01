@@ -1,3 +1,3 @@
 # budgeting
 
-Web tool to track expected/reoccuring income and expenses to predict the sustainability.
+Web tool to track expected/recurring income and expenses to predict the sustainability.
